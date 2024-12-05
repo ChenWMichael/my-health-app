@@ -7,15 +7,15 @@ export default function Navbar() {
         <Toolbar>
           <Typography
             component="div"
-            sx={{ flexGrow: 1, color: '#ffffff' }}
+            sx={{ flexGrow: 1, color: 'inherit' }}
           >
-            Michael's Personal Health Tracker
+            Michael's Fitness Journal
           </Typography>
           <Link href="/" passHref>
-            <Button sx={{ color: '#ffffff' }}>Home</Button>
+            <Button sx={{ color: 'inherit' }}>Home</Button>
           </Link>
           <Link href="/dashboard" passHref>
-            <Button sx={{ color: '#ffffff' }}>Dashboard</Button>
+            <Button sx={{ color: 'inherit' }}>Dashboard</Button>
           </Link>
         </Toolbar>
       </AppBar>

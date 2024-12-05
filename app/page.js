@@ -7,9 +7,7 @@ export default function Home() {
     <main>
       <Box
         sx={{
-          textAlign: 'center',
-          padding: '20px',
-          minHeight: '100vh',
+          minHeight: '80vh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -18,25 +16,21 @@ export default function Home() {
         }}
       >
         <Typography variant="h1" gutterBottom>
-          Michael's
-          <br />
-          Personal Health Tracker
-        </Typography>
-        <Typography variant="h6" gutterBottom>
           Tracking Health
           <br />
           Visualizing Progress
           <br />
           Achieving Goals
+          
         </Typography>
-        <Link href="/log" passHref>
-          <Button variant="contained" color="primary" size="large" sx={{ mt: 2 }}>
-            You are Me
+        <Link href="/dashboard" passHref>
+          <Button variant="contained" color="primary" size="large">
+            View Dashboard
           </Button>
         </Link>
-        <Link href="/log" passHref>
-          <Button variant="contained" color="primary" size="large" sx={{ mt: 2 }}>
-            You are not Me
+        <Link href="/admin" passHref>
+          <Button variant="outlined" color="primary" size="large">
+            Log Data
           </Button>
         </Link>
       </Box>
