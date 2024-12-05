@@ -3,21 +3,21 @@ import {AppBar, Toolbar, Typography, Button } from '@mui/material';
 
 export default function Navbar() {
     return (
-        <AppBar position = "static">
-            <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                My Health App
-                </Typography>
-                <Link href="/" passHref>
-                <Button color="inherit">Home</Button>
-                </Link>
-                <Link href="/log" passHref>
-                <Button color="inherit">Log</Button>
-                </Link>
-                <Link href="/dashboard" passHref>
-                <Button color="inherit">Dashboard</Button>
-                </Link>
-            </Toolbar>
-        </AppBar>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography
+            component="div"
+            sx={{ flexGrow: 1, color: '#ffffff' }}
+          >
+            Michael's Personal Health Tracker
+          </Typography>
+          <Link href="/" passHref>
+            <Button sx={{ color: '#ffffff' }}>Home</Button>
+          </Link>
+          <Link href="/dashboard" passHref>
+            <Button sx={{ color: '#ffffff' }}>Dashboard</Button>
+          </Link>
+        </Toolbar>
+      </AppBar>
     );
-}
+  }
