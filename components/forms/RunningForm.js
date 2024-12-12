@@ -1,13 +1,20 @@
 'use client';
 import { Box, TextField, Button, Typography } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState } from 'react';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 export default function RunningForm() {
     const [formData, setFormData] = useState({
         distance: '',
         time: '',
         calories: '',
-        date: '',
+        date: null,
         notes: '',
         }
     );
@@ -19,6 +26,10 @@ export default function RunningForm() {
         setFormData({...formData, [name]: value});
     }
 
+    const handleDateChange = (newDate) => {
+        setFormData({ ...formData, date: newDate });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         
@@ -29,7 +40,7 @@ export default function RunningForm() {
             type: 'Running',
             distance: parseFloat(formData.distance),
             time: parseInt(formData.time, 10),
-            date: formData.date ? new Date().toISOString() : new Date().toISOString(),
+            date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
             calories: parseInt(formData.calories),
             notes: formData.notes,
         };
@@ -44,7 +55,7 @@ export default function RunningForm() {
             distance: '',
             time: '',
             calories: '',
-            date: '',
+            date: null,
             notes: '',
         });
     };
@@ -59,9 +70,10 @@ export default function RunningForm() {
     
         setLastSubmission(null);
         setConfirmationMessage('Reverted last submission.');
-      };
+    };
     
     return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
     <Box 
         component="form" 
         onSubmit={handleSubmit}
@@ -73,7 +85,7 @@ export default function RunningForm() {
             flexDirection: 'column',
             alignItems: 'center',
             borderRadius: '10px',
-            backgroundColor: '#white',
+            backgroundColor: '#f2f2f2',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         }}>
         <Typography variant="h5" gutterBottom>
@@ -106,14 +118,11 @@ export default function RunningForm() {
             margin="normal"
             required
         />
-        <TextField
-            label="Date (YYYY-MM-DD)"
-            name="date"
+        <DatePicker
+            label="Date"
             value={formData.date}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            placeholder="Blank == Today's Date"
+            onChange={handleDateChange}
+            renderInput={(params) => <TextField {...params} fullWidth margin="normal"/>}
         />
         <TextField
             label="Notes"
@@ -142,5 +151,6 @@ export default function RunningForm() {
             </Typography>
         )}
     </Box>
+    </LocalizationProvider>
     );
 }
