@@ -39,6 +39,7 @@ export default function RunningForm() {
             id: Date.now().toString(),
             type: 'Running',
             distance: parseFloat(formData.distance),
+            level: null,
             time: parseInt(formData.time, 10),
             date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
             calories: parseInt(formData.calories),

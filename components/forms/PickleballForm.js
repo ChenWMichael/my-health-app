@@ -34,7 +34,8 @@ export default function PickleballForm() {
         const newEntry = {
             id: Date.now().toString(),
             type: 'Pickleball',
-            distance: 0,
+            distance: null,
+            level: formData.level ||  null,
             time: parseInt(formData.time, 10),
             date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
             calories: parseInt(formData.calories),
