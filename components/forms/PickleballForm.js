@@ -36,6 +36,7 @@ export default function PickleballForm() {
             type: 'Pickleball',
             distance: null,
             level: formData.level ||  null,
+            count: null,
             time: parseInt(formData.time, 10),
             date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
             calories: parseInt(formData.calories),
@@ -46,7 +47,7 @@ export default function PickleballForm() {
         localStorage.setItem('fitnessData', JSON.stringify(updatedData));
 
         setLastSubmission(newEntry);
-        setConfirmationMessage("Running data logged successfully!");
+        setConfirmationMessage("Pickleball data logged successfully!");
 
         setFormData({ 
             level: '',

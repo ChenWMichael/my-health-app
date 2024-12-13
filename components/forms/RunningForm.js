@@ -1,13 +1,8 @@
 'use client';
 import { Box, TextField, Button, Typography } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
-import { LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState } from 'react';
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
-dayjs.extend(customParseFormat);
 
 export default function RunningForm() {
     const [formData, setFormData] = useState({
@@ -39,7 +34,9 @@ export default function RunningForm() {
             id: Date.now().toString(),
             type: 'Running',
             distance: parseFloat(formData.distance),
+            elevation: null,
             level: null,
+            count: null,
             time: parseInt(formData.time, 10),
             date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
             calories: parseInt(formData.calories),
