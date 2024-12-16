@@ -35,6 +35,8 @@ export default function JumpRopeForm() {
             type: 'JumpRope',
             distance: parseFloat(formData.distance),
             elevation: null,
+            weight: parseFloat(formData.weight),
+            tod: '',
             level: null,
             count: parseInt(formData.count),
             time: parseInt(formData.time, 10),

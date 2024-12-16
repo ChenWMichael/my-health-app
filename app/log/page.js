@@ -8,6 +8,7 @@ import BadmintonForm from '../../components/forms/BadmintonForm';
 import JumpRopeForm from '../../components/forms/JumpRopeForm';
 import HikingForm from '../../components/forms/HikingForm';
 import OtherForm from '../../components/forms/OtherForm';
+import WeightForm from '../../components/forms/WeightForm';
 
 export default function LogPage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function LogPage() {
     {id: 'badminton', label: 'Badminton', component: BadmintonForm},
     {id: 'hiking', label: 'Hiking', component: HikingForm},
     {id: 'Other', label: 'Other', component: OtherForm},
+    {id: 'weight', label: 'Weight', component: WeightForm},
   ]
   const [selectedActivity, setSelectedActivity] = useState('');
 

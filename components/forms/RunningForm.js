@@ -35,6 +35,8 @@ export default function RunningForm() {
             type: 'Running',
             distance: parseFloat(formData.distance),
             elevation: null,
+            weight: parseFloat(formData.weight),
+            tod: '',
             level: null,
             count: null,
             time: parseInt(formData.time, 10),
