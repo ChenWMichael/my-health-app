@@ -14,6 +14,7 @@ export default function WeightForm() {
     );
     const [lastSubmission, setLastSubmission] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,20 +28,32 @@ export default function WeightForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        if (!formData.date) {
+            setConfirmationMessage("Please select a date before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (formData.tod.toLowerCase() != 'morning' && formData.tod.toLowerCase() != 'afternoon' && formData.tod.toLowerCase() != 'night') {
+            setConfirmationMessage("Please enter a valid time of day.")
+            setMessageType('error');
+            return;
+        }
+
         const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
         const newEntry = {
             id: Date.now().toString(),
             type: 'Weight',
-            distance: parseFloat(formData.distance),
+            distance:null,
             elevation: null,
             weight: parseFloat(formData.weight),
-            tod: '',
+            tod: formData.tod,
             level: null,
             count: null,
-            time: parseInt(formData.time, 10),
+            time: null,
             date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
-            calories: parseInt(formData.calories),
+            calories: null,
             notes: formData.notes,
         };
 
@@ -49,6 +62,7 @@ export default function WeightForm() {
         
         setLastSubmission(newEntry);
         setConfirmationMessage("Weight data logged successfully!");
+        setMessageType('success');
 
         setFormData({ 
             weight: '',
@@ -136,7 +150,12 @@ export default function WeightForm() {
             </Button>
         )}
         {confirmationMessage && (
-            <Typography variant="body1" color="success.main" sx={{ marginTop: '20px' }}>
+            <Typography 
+                variant="body1" 
+                sx={{ 
+                    marginTop: '20px',
+                    color: messageType === 'success' ? 'success.main' : 'error.main',
+                }}>
                 {confirmationMessage}
             </Typography>
         )}
