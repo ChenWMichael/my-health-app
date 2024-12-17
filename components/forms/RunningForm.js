@@ -15,6 +15,7 @@ export default function RunningForm() {
     );
     const [lastSubmission, setLastSubmission] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,6 +28,34 @@ export default function RunningForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const distance = parseFloat(formData.distance);
+        const time = parseInt(formData.time, 10);
+        const calories = parseInt(formData.calories, 10);
+    
+        if (!formData.distance.trim() || isNaN(distance) || distance <= 0) {
+            setConfirmationMessage("Please enter a valid positive distance before submitting.");
+            setMessageType('error');
+            return;
+        }
+    
+        if (!formData.time.trim() || isNaN(time) || time <= 0) {
+            setConfirmationMessage("Please enter a valid positive time before submitting.");
+            setMessageType('error');
+            return;
+        }
+    
+        if (!formData.calories.trim() || isNaN(calories) || calories <= 0) {
+            setConfirmationMessage("Please enter a valid positive calorie count before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.date) {
+            setConfirmationMessage("Please select a valid date before submitting.");
+            setMessageType('error');
+            return;
+        }
         
         const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
@@ -35,8 +64,8 @@ export default function RunningForm() {
             type: 'Running',
             distance: parseFloat(formData.distance),
             elevation: null,
-            weight: parseFloat(formData.weight),
-            tod: '',
+            weight: null,
+            tod: null,
             level: null,
             count: null,
             time: parseInt(formData.time, 10),
@@ -50,6 +79,7 @@ export default function RunningForm() {
         
         setLastSubmission(newEntry);
         setConfirmationMessage("Running data logged successfully!");
+        setMessageType('success');
 
         setFormData({ 
             distance: '',
@@ -146,7 +176,12 @@ export default function RunningForm() {
             </Button>
         )}
         {confirmationMessage && (
-            <Typography variant="body1" color="success.main" sx={{ marginTop: '20px' }}>
+            <Typography 
+                variant="body1" 
+                sx={{
+                    marginTop: '20px',
+                    color: messageType === 'success' ? 'success.main' : 'error.main',
+                }}>
                 {confirmationMessage}
             </Typography>
         )}
