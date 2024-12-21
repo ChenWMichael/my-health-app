@@ -16,6 +16,7 @@ export default function PickleballForm() {
 
     const [lastSubmission, setLastSubmission] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,6 +29,34 @@ export default function PickleballForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const level = parseFloat(formData.level);
+        const time = parseInt(formData.time, 10);
+        const calories = parseInt(formData.calories, 10);
+
+        if (!formData.level.trim() || isNaN(level) || level < 2) {
+            setConfirmationMessage("Please enter a valid pickleball level before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.time.trim() || isNaN(time) || level <= 0) {
+            setConfirmationMessage("Please enter a valid time before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.calories.trim() || isNaN(calories) || calories <= 0) {
+            setConfirmationMessage("Please enter a valid positive calorie count before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.date) {
+            setConfirmationMessage("Please select a valid date before submitting.");
+            setMessageType('error');
+            return;
+        }
         
         const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
@@ -38,7 +67,7 @@ export default function PickleballForm() {
             elevation: null,
             weight: parseFloat(formData.weight),
             tod: '',
-            level: formData.level ||  null,
+            level: formData.level || '',
             count: null,
             time: parseInt(formData.time, 10),
             date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
@@ -51,6 +80,7 @@ export default function PickleballForm() {
 
         setLastSubmission(newEntry);
         setConfirmationMessage("Pickleball data logged successfully!");
+        setMessageType('success');
 
         setFormData({ 
             level: '',
@@ -147,7 +177,12 @@ export default function PickleballForm() {
             </Button>
         )}
         {confirmationMessage && (
-            <Typography variant="body1" color="success.main" sx={{ marginTop: '20px' }}>
+            <Typography 
+                variant="body1" 
+                sx={{
+                    marginTop: '20px',
+                    color: messageType === 'success' ? 'success.main' : 'error.main',
+                }}>
                 {confirmationMessage}
             </Typography>
         )}
