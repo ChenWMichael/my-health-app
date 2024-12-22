@@ -7,7 +7,6 @@ import { useState } from 'react';
 export default function JumpRopeForm() {
     const [formData, setFormData] = useState({
         count: null,
-        time: '',
         calories: '',
         date: null,
         notes: '',
@@ -15,6 +14,7 @@ export default function JumpRopeForm() {
     );
     const [lastSubmission, setLastSubmission] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,6 +27,15 @@ export default function JumpRopeForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const count = parseInt(formData.count, 10);
+        const calories = parseInt(formData.calories, 10);
+
+        if (!formData.count.trim() || isNaN(count) || count <= 0) {
+            setConfirmationMessage("Please enter a valid time before submitting.");
+            setMessageType('error');
+            return;
+        }
         
         const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
@@ -50,10 +59,10 @@ export default function JumpRopeForm() {
         
         setLastSubmission(newEntry);
         setConfirmationMessage("Jump Rope data logged successfully!");
+        setMessageType('success');
 
         setFormData({ 
             count: null,
-            time: '',
             calories: '',
             date: null,
             notes: '',
