@@ -195,8 +195,12 @@ export default function HikingForm() {
         )}
         {confirmationMessage && (
             <Typography 
-                variant="body1" color="success.main" sx={{ marginTop: '20px' }}>
-                    {confirmationMessage}
+                variant="body1" 
+                sx={{
+                    marginTop: '20px',
+                    color: messageType === 'success' ? 'success.main' : 'error.main',
+                }}>
+                {confirmationMessage}
             </Typography>
         )}
     </Box>
