@@ -34,7 +34,7 @@ export default function OtherForm() {
             type: 'Other',
             distance: null,
             elevation: null,
-            weight: parseFloat(formData.weight),
+            weight: null,
             tod: '',
             level: null,
             count: null,

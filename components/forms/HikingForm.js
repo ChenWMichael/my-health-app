@@ -36,7 +36,7 @@ export default function HikingForm() {
             type: 'Hiking',
             distance: parseFloat(formData.distance),
             elevation: null,
-            weight: parseFloat(formData.weight),
+            weight: null,
             tod: '',
             level: null,
             count: null,

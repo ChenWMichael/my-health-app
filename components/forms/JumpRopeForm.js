@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 export default function JumpRopeForm() {
     const [formData, setFormData] = useState({
-        count: null,
+        count: '',
         calories: '',
         date: null,
         notes: '',
@@ -36,19 +36,25 @@ export default function JumpRopeForm() {
             setMessageType('error');
             return;
         }
+
+        if (!formData.calories.trim() || isNaN(calories) || calories <= 0) {
+            setConfirmationMessage("Please enter a valid positive calorie count before submitting.");
+            setMessageType('error');
+            return;
+        }
         
         const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
         const newEntry = {
             id: Date.now().toString(),
             type: 'JumpRope',
-            distance: parseFloat(formData.distance),
+            distance: null,
             elevation: null,
-            weight: parseFloat(formData.weight),
+            weight: null,
             tod: '',
             level: null,
             count: parseInt(formData.count),
-            time: parseInt(formData.time, 10),
+            time: null,
             date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
             calories: parseInt(formData.calories),
             notes: formData.notes,
@@ -62,7 +68,7 @@ export default function JumpRopeForm() {
         setMessageType('success');
 
         setFormData({ 
-            count: null,
+            count: '',
             calories: '',
             date: null,
             notes: '',
@@ -147,7 +153,12 @@ export default function JumpRopeForm() {
             </Button>
         )}
         {confirmationMessage && (
-            <Typography variant="body1" color="success.main" sx={{ marginTop: '20px' }}>
+            <Typography 
+                variant="body1" 
+                sx={{
+                    marginTop: '20px',
+                    color: messageType === 'success' ? 'success.main' : 'error.main',
+                }}>
                 {confirmationMessage}
             </Typography>
         )}

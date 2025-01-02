@@ -65,7 +65,7 @@ export default function PickleballForm() {
             type: 'Pickleball',
             distance: null,
             elevation: null,
-            weight: parseFloat(formData.weight),
+            weight: null,
             tod: '',
             level: formData.level || '',
             count: null,

@@ -36,7 +36,7 @@ export default function BadmintonlForm() {
             type: 'Badminton',
             distance: null,
             elevation: null,
-            weight: parseFloat(formData.weight),
+            weight: null,
             tod: '',
             level: formData.level ||  null,
             count: null,
