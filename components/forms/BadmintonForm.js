@@ -16,6 +16,7 @@ export default function BadmintonlForm() {
 
     const [lastSubmission, setLastSubmission] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,6 +29,35 @@ export default function BadmintonlForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const level = formData.level;
+        const time = parseInt(formData.time, 10);
+        const calories = parseInt(formData.calories, 10);
+        const grades = new Set(["A", "B", "C", "D", "E"]);
+
+        if (!formData.level.trim() || grades.contains) {
+            setConfirmationMessage("Please enter a valid pickleball level before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.time.trim() || isNaN(time) || level <= 0) {
+            setConfirmationMessage("Please enter a valid time before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.calories.trim() || isNaN(calories) || calories <= 0) {
+            setConfirmationMessage("Please enter a valid positive calorie count before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.date) {
+            setConfirmationMessage("Please select a valid date before submitting.");
+            setMessageType('error');
+            return;
+        }
         
         const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
@@ -51,6 +81,7 @@ export default function BadmintonlForm() {
 
         setLastSubmission(newEntry);
         setConfirmationMessage("Badminton data logged successfully!");
+        setMessageType('success');
 
         setFormData({ 
             level: '',
@@ -147,7 +178,12 @@ export default function BadmintonlForm() {
             </Button>
         )}
         {confirmationMessage && (
-            <Typography variant="body1" color="success.main" sx={{ marginTop: '20px' }}>
+            <Typography
+                variant="body1" 
+                sx={{
+                    marginTop: '20px',
+                    color: messageType === 'success' ? 'success.main' : 'error.main',
+                }}>
                 {confirmationMessage}
             </Typography>
         )}
