@@ -14,6 +14,7 @@ export default function OtherForm() {
     );
     const [lastSubmission, setLastSubmission] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,6 +27,27 @@ export default function OtherForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const time = parseInt(formData.time, 10);
+        const calories = parseInt(formData.calories);
+
+        if (!formData.time.trim() || isNaN(time) || time <= 0) {
+            setConfirmationMessage("Please enter a valid time before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.calories.trim() || isNaN(calories) || calories <= 0) {
+            setConfirmationMessage("Please enter a valid positive calorie count before submitting.");
+            setMessageType('error');
+            return;
+        }
+
+        if (!formData.date) {
+            setConfirmationMessage("Please select a valid date before submitting.");
+            setMessageType('error');
+            return;
+        }
         
         const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
@@ -49,6 +71,7 @@ export default function OtherForm() {
         
         setLastSubmission(newEntry);
         setConfirmationMessage("Other data logged successfully!");
+        setMessageType('success');
 
         setFormData({ 
             time: '',
@@ -135,7 +158,12 @@ export default function OtherForm() {
             </Button>
         )}
         {confirmationMessage && (
-            <Typography variant="body1" color="success.main" sx={{ marginTop: '20px' }}>
+            <Typography 
+                variant="body1" 
+                sx={{
+                    marginTop: '20px',
+                    color: messageType === 'success' ? 'success.main' : 'error.main',
+                }}>
                 {confirmationMessage}
             </Typography>
         )}

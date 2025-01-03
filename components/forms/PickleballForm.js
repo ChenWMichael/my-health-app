@@ -40,7 +40,7 @@ export default function PickleballForm() {
             return;
         }
 
-        if (!formData.time.trim() || isNaN(time) || level <= 0) {
+        if (!formData.time.trim() || isNaN(time) || time < 0) {
             setConfirmationMessage("Please enter a valid time before submitting.");
             setMessageType('error');
             return;
