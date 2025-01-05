@@ -2,9 +2,14 @@ import { faker } from '@faker-js/faker';
 
 export const generateAllMockData = () => {
     const runningData = generateRunningData(15);
+    const pickleData = generatePickleData(15);
+    const badmintonData = generateBadmintonData(15);
+    const hikingData = generateHikingData(15);
+    const jumpingData = generateJumpingData(15);
+    const otherData = generateOtherData(15);
     const weightData = generateWeightData(15);
 
-    return [...runningData, ...weightData];
+    return [...runningData, ...pickleData, ...badmintonData, ...hikingData, ...jumpingData, ...otherData, ...weightData];
 };
 
 export const generateRunningData = (count = 10) => {
@@ -28,11 +33,79 @@ export const generatePickleData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
         id: `pickle-${faker.datatype.uuid()}`,
         type: 'Pickleball',
-        distance: parseFloat((Math.random() * 10).toFixed(2)), // Miles
+        distance: null,
         elevation: null,
         weight: null,
         tod: null,
-        level: null,
+        level: parseFloat((Math.random() * (3.0) + 2.0).toFixed(1)),
+        count: null,
+        time: Math.floor(Math.random() * 120) + 10, // Minutes
+        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        calories: Math.floor(Math.random() * 500) + 100, // Calories
+        notes: faker.lorem.sentence(),
+    }));
+};
+
+export const generateBadmintonData = (count = 10) => {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `badminton-${faker.datatype.uuid()}`,
+        type: 'Badminton',
+        distance: null,
+        elevation: null,
+        weight: null,
+        tod: null,
+        level: ['A', 'B', 'C', 'D', 'E'][Math.floor(Math.random() * 5)],
+        count: null,
+        time: Math.floor(Math.random() * 120) + 10, // Minutes
+        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        calories: Math.floor(Math.random() * 500) + 100, // Calories
+        notes: faker.lorem.sentence(),
+    }));
+};
+
+export const generateHikingData = (count = 10) => {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `hiking-${faker.datatype.uuid()}`,
+        type: 'Hiking',
+        distance: parseFloat((Math.random() * 10).toFixed(2)),
+        elevation: Math.floor(Math.random() * 1000),
+        weight: null,
+        tod: null,
+        level: '',
+        count: null,
+        time: Math.floor(Math.random() * 120) + 10, // Minutes
+        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        calories: Math.floor(Math.random() * 500) + 100, // Calories
+        notes: faker.lorem.sentence(),
+    }));
+};
+
+export const generateJumpingData = (count = 10) => {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `jump-${faker.datatype.uuid()}`,
+        type: 'jump',
+        distance: parseFloat((Math.random() * 10).toFixed(2)),
+        elevation: Math.floor(Math.random() * 1000),
+        weight: null,
+        tod: null,
+        level: '',
+        count: null,
+        time: Math.floor(Math.random() * 120) + 10, // Minutes
+        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        calories: Math.floor(Math.random() * 500) + 100, // Calories
+        notes: faker.lorem.sentence(),
+    }));
+};
+
+export const generateOtherData = (count = 10) => {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `other-${faker.datatype.uuid()}`,
+        type: 'other',
+        distance: null,
+        elevation: null,
+        weight: null,
+        tod: null,
+        level: '',
         count: null,
         time: Math.floor(Math.random() * 120) + 10, // Minutes
         date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
