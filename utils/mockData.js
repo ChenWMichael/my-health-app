@@ -14,7 +14,7 @@ export const generateAllMockData = () => {
 
 export const generateRunningData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
-        id: `running-${faker.datatype.uuid()}`,
+        id: `running-${faker.string.uuid()}`,
         type: 'Running',
         distance: parseFloat((Math.random() * 10).toFixed(2)), // Miles
         elevation: null,
@@ -23,7 +23,7 @@ export const generateRunningData = (count = 10) => {
         level: null,
         count: null,
         time: Math.floor(Math.random() * 120) + 10, // Minutes
-        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        date: faker.date.between({ from: '2024-01-01', to: '2024-12-31' }).toISOString(),
         calories: Math.floor(Math.random() * 500) + 100, // Calories
         notes: faker.lorem.sentence(),
     }));
@@ -31,7 +31,7 @@ export const generateRunningData = (count = 10) => {
 
 export const generatePickleData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
-        id: `pickle-${faker.datatype.uuid()}`,
+        id: `pickle-${faker.string.uuid()}`,
         type: 'Pickleball',
         distance: null,
         elevation: null,
@@ -40,7 +40,7 @@ export const generatePickleData = (count = 10) => {
         level: parseFloat((Math.random() * (3.0) + 2.0).toFixed(1)),
         count: null,
         time: Math.floor(Math.random() * 120) + 10, // Minutes
-        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        date: faker.date.between({ from: '2024-01-01', to: '2024-12-31' }).toISOString(),
         calories: Math.floor(Math.random() * 500) + 100, // Calories
         notes: faker.lorem.sentence(),
     }));
@@ -48,7 +48,7 @@ export const generatePickleData = (count = 10) => {
 
 export const generateBadmintonData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
-        id: `badminton-${faker.datatype.uuid()}`,
+        id: `badminton-${faker.string.uuid()}`,
         type: 'Badminton',
         distance: null,
         elevation: null,
@@ -57,7 +57,7 @@ export const generateBadmintonData = (count = 10) => {
         level: ['A', 'B', 'C', 'D', 'E'][Math.floor(Math.random() * 5)],
         count: null,
         time: Math.floor(Math.random() * 120) + 10, // Minutes
-        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        date: faker.date.between({ from: '2024-01-01', to: '2024-12-31' }).toISOString(),
         calories: Math.floor(Math.random() * 500) + 100, // Calories
         notes: faker.lorem.sentence(),
     }));
@@ -65,7 +65,7 @@ export const generateBadmintonData = (count = 10) => {
 
 export const generateHikingData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
-        id: `hiking-${faker.datatype.uuid()}`,
+        id: `hiking-${faker.string.uuid()}`,
         type: 'Hiking',
         distance: parseFloat((Math.random() * 10).toFixed(2)),
         elevation: Math.floor(Math.random() * 1000),
@@ -74,7 +74,7 @@ export const generateHikingData = (count = 10) => {
         level: '',
         count: null,
         time: Math.floor(Math.random() * 120) + 10, // Minutes
-        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        date: faker.date.between({ from: '2024-01-01', to: '2024-12-31' }).toISOString(),
         calories: Math.floor(Math.random() * 500) + 100, // Calories
         notes: faker.lorem.sentence(),
     }));
@@ -82,7 +82,7 @@ export const generateHikingData = (count = 10) => {
 
 export const generateJumpingData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
-        id: `jump-${faker.datatype.uuid()}`,
+        id: `jump-${faker.string.uuid()}`,
         type: 'jump',
         distance: parseFloat((Math.random() * 10).toFixed(2)),
         elevation: Math.floor(Math.random() * 1000),
@@ -91,7 +91,7 @@ export const generateJumpingData = (count = 10) => {
         level: '',
         count: null,
         time: Math.floor(Math.random() * 120) + 10, // Minutes
-        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        date: faker.date.between({ from: '2024-01-01', to: '2024-12-31' }).toISOString(),
         calories: Math.floor(Math.random() * 500) + 100, // Calories
         notes: faker.lorem.sentence(),
     }));
@@ -99,7 +99,7 @@ export const generateJumpingData = (count = 10) => {
 
 export const generateOtherData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
-        id: `other-${faker.datatype.uuid()}`,
+        id: `other-${faker.string.uuid()}`,
         type: 'other',
         distance: null,
         elevation: null,
@@ -108,7 +108,7 @@ export const generateOtherData = (count = 10) => {
         level: '',
         count: null,
         time: Math.floor(Math.random() * 120) + 10, // Minutes
-        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        date: faker.date.between({ from: '2024-01-01', to: '2024-12-31' }).toISOString(),
         calories: Math.floor(Math.random() * 500) + 100, // Calories
         notes: faker.lorem.sentence(),
     }));
@@ -116,7 +116,7 @@ export const generateOtherData = (count = 10) => {
 
 export const generateWeightData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
-        id: `weight-${faker.datatype.uuid()}`,
+        id: `weight-${faker.string.uuid()}`,
         type: 'Weight',
         distance: null,
         elevation: null,
@@ -125,7 +125,7 @@ export const generateWeightData = (count = 10) => {
         level: null,
         count: null,
         time: null,
-        date: faker.date.between('2024-01-01', '2024-12-31').toISOString(),
+        date: faker.date.between({ from: '2024-01-01', to: '2024-12-31' }).toISOString(),
         calories: null,
         notes: faker.lorem.sentence(),
     }));
