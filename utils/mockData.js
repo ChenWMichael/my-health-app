@@ -83,7 +83,7 @@ export const generateHikingData = (count = 10) => {
 export const generateJumpingData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
         id: `jump-${faker.string.uuid()}`,
-        type: 'jump',
+        type: 'Jump Roping',
         distance: parseFloat((Math.random() * 10).toFixed(2)),
         elevation: Math.floor(Math.random() * 1000),
         weight: null,
@@ -100,7 +100,7 @@ export const generateJumpingData = (count = 10) => {
 export const generateOtherData = (count = 10) => {
     return Array.from({ length: count }, (_, i) => ({
         id: `other-${faker.string.uuid()}`,
-        type: 'other',
+        type: 'Other',
         distance: null,
         elevation: null,
         weight: null,
