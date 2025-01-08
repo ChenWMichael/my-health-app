@@ -4,9 +4,9 @@ import { generateAllMockData } from '../../utils/mockData';
 import GridLayout from 'react-grid-layout';
 import { Card, CardContent, Typography } from '@mui/material';
 import { Bar, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
     // Default layout refers to the order of graphs displayed in the given session
@@ -14,34 +14,39 @@ export default function Dashboard() {
     const defaultLayout = [
         { i: 'caloriesGraph', x: 0, y: 0, w: 6, h: 2 },
         { i: 'activityCountGraph', x: 6, y: 0, w: 6, h: 2 },
+        { i: 'weightLineGraph', x: 0, y: 2, w:6, h:2 },
     ];
 
-    const [layout, setLayout] = useState(defaultLayout); 
-
+    const [layout, setLayout] = useState(defaultLayout);
     const [fitnessData, setFitnessData] = useState([]);
 
     useEffect(() => {
-        // Check if localStorage is available
         if (typeof window !== 'undefined') {
             const savedLayout = JSON.parse(localStorage.getItem('dashboardLayout'));
+            const storedData = JSON.parse(localStorage.getItem('fitnessData'));
+            
+            // Restore layout
             if (savedLayout) {
                 setLayout(savedLayout);
             }
 
-            const storedData = JSON.parse(localStorage.getItem('fitnessData'));
-            if (!storedData || storedData.length === 0) {
-                const mockData = generateAllMockData();
+            // Use stored fitness data or fallback to mock
+            if (storedData && storedData.length > 0) {
+                setFitnessData(storedData);
+            } else {
+                // Generate mock data
+                const mockData = generateMockData(); // Replace with actual data fetch in production
                 localStorage.setItem('fitnessData', JSON.stringify(mockData));
                 setFitnessData(mockData);
-            } else {
-                setFitnessData(storedData);
             }
         }
     }, []);
 
     const handleLayoutChange = (newLayout) => {
         setLayout(newLayout);
-        localStorage.setItem('dashboardLayout', JSON.stringify(newLayout));
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('dashboardLayout', JSON.stringify(newLayout));
+        }
     }
 
     const analyzeCalories = () => {
@@ -65,9 +70,14 @@ export default function Dashboard() {
     };
 
     const analyzeWeightTrend = () => {
-        return fitnessData
-            .filter((entry) => entry.type === 'Weight')
-            .sort((a,b) => new Date(a.date) - new Date(b.date));
+        const weightEntries = fitnessData
+        .filter((entry) => entry.type === 'Weight')
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        return {
+            labels: weightEntries.map((entry) => new Date(entry.date).toLocaleDateString()),
+            data: weightEntries.map((entry) => entry.weight),
+        };
     }
 
     const caloriesData = analyzeCalories();
@@ -101,14 +111,14 @@ export default function Dashboard() {
     };
 
     const weightLineData = {
-        labels: Object.keys(weightTrendData),
+        labels: weightTrendData.labels,
         datasets: [
             {
                 label: 'Weight Measurements',
-                data: Object.values(weightTrendData),
+                data: weightTrendData.data,
                 backgroundColor: 'rgba(75,192,192,0.4)',
                 borderColor: 'rgba(75,192,192,1)',
-                borderWidth: 1,
+                tension: 0.1,
             }
         ]
     }
@@ -150,7 +160,7 @@ export default function Dashboard() {
             <div key="weightLineGraph">
                 <Card sx={{ height: '105%' }}>
                     <CardContent>
-                        <Typography variant="h6">Activity Count</Typography>
+                        <Typography variant="h6">Weight Trend</Typography>
                         <Line data={weightLineData} />
                     </CardContent>
                 </Card>
