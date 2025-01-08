@@ -32,7 +32,7 @@ export default function Dashboard() {
         } else {
             setFitnessData(storedData);
         }
-    })
+    }, []);
 
     const handleLayoutChange = (newLayout) => {
         setLayout(newLayout);
