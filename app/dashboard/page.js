@@ -1,59 +1,42 @@
 'use client';
 import { React, useState, useEffect } from 'react';
-import { generateAllMockData } from '../../utils/mockData';
-import GridLayout from 'react-grid-layout';
-import { Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
-    // Default layout refers to the order of graphs displayed in the given session
-    // Squishing issues are related to the default layout not taking account the extra graphs
-    const defaultLayout = [
-        { i: 'caloriesGraph', x: 0, y: 0, w: 6, h: 2 },
-        { i: 'activityCountGraph', x: 6, y: 0, w: 6, h: 2 },
-        { i: 'weightLineGraph', x: 0, y: 2, w:6, h:2 },
-    ];
-
-    const [layout, setLayout] = useState(defaultLayout);
     const [fitnessData, setFitnessData] = useState([]);
+    const [visibleGraphs, setVisibleGraphs] = useState({
+        caloriesGraph: true,
+        activityCountGraph: true,
+        weightLineGraph: true,
+    });
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedLayout = JSON.parse(localStorage.getItem('dashboardLayout'));
-            const storedData = JSON.parse(localStorage.getItem('fitnessData'));
-            
-            // Restore layout
-            if (savedLayout) {
-                setLayout(savedLayout);
-            }
-
-            // Use stored fitness data or fallback to mock
-            if (storedData && storedData.length > 0) {
-                setFitnessData(storedData);
-            } else {
-                // Generate mock data
-                const mockData = generateMockData(); // Replace with actual data fetch in production
-                localStorage.setItem('fitnessData', JSON.stringify(mockData));
-                setFitnessData(mockData);
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/fitnessData');
+                const data = await response.json();
+                setFitnessData(data);
+            } catch (error) {
+                console.error('Error fetching fitness data:', error);
             }
         }
+        fetchData();
     }, []);
 
-    const handleLayoutChange = (newLayout) => {
-        setLayout(newLayout);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('dashboardLayout', JSON.stringify(newLayout));
-        }
-    }
+    const toggleGraph = (graphKey) => {
+        setVisibleGraphs((prev) => ({
+            ...prev,
+            [graphKey]: !prev[graphKey],
+        }));
+    };
 
     const analyzeCalories = () => {
         return fitnessData.reduce((acc, entry) => {
-            if (entry.type === 'Weight') {
-                return acc;
-            } 
+            if (entry.type === 'Weight') return acc;
             acc[entry.type] = (acc[entry.type] || 0) + (entry.calories || 0);
             return acc;
         }, {});
@@ -61,9 +44,7 @@ export default function Dashboard() {
 
     const analyzeActivityCounts = () => {
         return fitnessData.reduce((acc, entry) => {
-            if (entry.type === 'Weight') {
-                return acc;
-            } 
+            if (entry.type === 'Weight') return acc;
             acc[entry.type] = (acc[entry.type] || 0) + 1;
             return acc;
         }, {});
@@ -80,16 +61,12 @@ export default function Dashboard() {
         };
     }
 
-    const caloriesData = analyzeCalories();
-    const activityCounts = analyzeActivityCounts();
-    const weightTrendData = analyzeWeightTrend();
-
     const caloriesBarData = {
-        labels: Object.keys(caloriesData),
+        labels: Object.keys(analyzeCalories()),
         datasets: [
             {
                 label: 'Calories Burned',
-                data: Object.values(caloriesData),
+                data: Object.values(analyzeCalories()),
                 backgroundColor: 'rgba(75,192,192,0.4)',
                 borderColor: 'rgba(75,192,192,1)',
                 borderWidth: 1,
@@ -98,11 +75,11 @@ export default function Dashboard() {
     };
 
     const activityCountBarData = {
-        labels: Object.keys(activityCounts),
+        labels: Object.keys(analyzeActivityCounts()),
         datasets: [
             {
                 label: 'Activity Counts',
-                data: Object.values(activityCounts),
+                data: Object.values(analyzeActivityCounts()),
                 backgroundColor: 'rgba(75,192,192,0.4)',
                 borderColor: 'rgba(75,192,192,1)',
                 borderWidth: 1,
@@ -111,11 +88,11 @@ export default function Dashboard() {
     };
 
     const weightLineData = {
-        labels: weightTrendData.labels,
+        labels: analyzeWeightTrend().labels,
         datasets: [
             {
                 label: 'Weight Measurements',
-                data: weightTrendData.data,
+                data: analyzeWeightTrend().data,
                 backgroundColor: 'rgba(75,192,192,0.4)',
                 borderColor: 'rgba(75,192,192,1)',
                 tension: 0.1,
@@ -124,47 +101,45 @@ export default function Dashboard() {
     }
 
     return (
-        <GridLayout
-            className="layout"
-            layout={layout}
-            cols={12}
-            rowHeight={155}
-            width={1200}
-            margin={[10, 20]}
-            preventCollision={true} 
-            onLayoutChange={handleLayoutChange}
-        >
-            <div key="caloriesGraph">
-                <Card sx={{ height: '105%'}}>
+        <div>
+            <div>
+                {Object.keys(visibleGraphs).map((graphKey) => (
+                    <FormControlLabel
+                        key={graphKey}
+                        control={
+                            <Checkbox
+                                checked={visibleGraphs[graphKey]}
+                                onChange={() => toggleGraph(graphKey)}
+                            />
+                        }
+                        label={graphKey.replace(/Graph$/, '').replace(/([A-Z])/g, ' $1').trim()}
+                    />
+                ))}
+            </div>
+            {visibleGraphs.caloriesGraph && (
+                <Card sx={{ margin: '20px 0' }}>
                     <CardContent>
                         <Typography variant="h6">Calories Burned</Typography>
-                        <Bar 
-                            data={caloriesBarData} 
-                            options={{
-                                responsive: true,
-                            }}
-                        />
+                        <Bar data={caloriesBarData} />
                     </CardContent>
                 </Card>
-            </div>
-            
-            <div key="activityCountGraph">
-                <Card sx={{ height: '105%' }}>
+            )}
+            {visibleGraphs.activityCountGraph && (
+                <Card sx={{ margin: '20px 0' }}>
                     <CardContent>
                         <Typography variant="h6">Activity Count</Typography>
                         <Bar data={activityCountBarData} />
                     </CardContent>
                 </Card>
-            </div>
-
-            <div key="weightLineGraph">
-                <Card sx={{ height: '105%' }}>
+            )}
+            {visibleGraphs.weightLineGraph && (
+                <Card sx={{ margin: '20px 0' }}>
                     <CardContent>
                         <Typography variant="h6">Weight Trend</Typography>
                         <Line data={weightLineData} />
                     </CardContent>
                 </Card>
-            </div>
-        </GridLayout>
+            )}
+        </div>
     );
 }
