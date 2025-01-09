@@ -71,7 +71,7 @@ export default function HikingForm() {
             id: Date.now().toString(),
             type: 'Hiking',
             distance: parseFloat(formData.distance),
-            elevation: null,
+            elevation: parseFloat(formData.elevation),
             weight: null,
             tod: '',
             level: null,
