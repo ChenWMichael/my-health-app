@@ -22,7 +22,8 @@ export async function POST(req) {
             type,
             distance,
             elevation,
-            weight,time_of_day,
+            weight,
+            time_of_day,
             level,
             count,
             time,
@@ -30,7 +31,7 @@ export async function POST(req) {
             date,
             notes
         ) 
-        VALUES (?,?,?,?,?,?,?,?,?,?)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
         `,
         [
             type,

@@ -58,8 +58,6 @@ export default function BadmintonlForm() {
             setMessageType('error');
             return;
         }
-        
-        const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
         const newEntry = {
             id: Date.now().toString(),
@@ -77,7 +75,6 @@ export default function BadmintonlForm() {
         };
 
         const updatedData = [...existingData, newEntry];
-        localStorage.setItem('fitnessData', JSON.stringify(updatedData));
 
         setLastSubmission(newEntry);
         setConfirmationMessage("Badminton data logged successfully!");
@@ -95,10 +92,7 @@ export default function BadmintonlForm() {
     const handleUndo = () => {
         if (!lastSubmission) return;
     
-        const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
-    
         const updatedData = existingData.filter((entry) => entry.id !== lastSubmission.id);
-        localStorage.setItem('fitnessData', JSON.stringify(updatedData));
     
         setLastSubmission(null);
         setConfirmationMessage('Reverted last submission.');

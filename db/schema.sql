@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS fitness_data;
+
 CREATE TABLE fitness_data (
     id INTEGER PRIMARY KEY,
     type TEXT NOT NULL,
