@@ -3,6 +3,7 @@ import { Box, TextField, Button, Typography } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState } from 'react';
+import dayjs from 'dayjs';
 
 export default function BadmintonlForm() {
     const [formData, setFormData] = useState({
@@ -14,7 +15,6 @@ export default function BadmintonlForm() {
         }
     );
 
-    const [lastSubmission, setLastSubmission] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
     const [messageType, setMessageType] = useState('success');
 
@@ -27,7 +27,7 @@ export default function BadmintonlForm() {
         setFormData({ ...formData, date: newDate });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const level = formData.level;
@@ -35,7 +35,7 @@ export default function BadmintonlForm() {
         const calories = parseInt(formData.calories, 10);
         const grades = new Set(["A", "B", "C", "D", "E"]);
 
-        if (!formData.level.trim() || grades.contains) {
+        if (!formData.level.trim() || !grades.has(level)) {
             setConfirmationMessage("Please enter a valid pickleball level before submitting.");
             setMessageType('error');
             return;
@@ -59,43 +59,41 @@ export default function BadmintonlForm() {
             return;
         }
 
-        const newEntry = {
-            id: Date.now().toString(),
-            type: 'Badminton',
-            distance: null,
-            elevation: null,
-            weight: null,
-            tod: '',
-            level: formData.level ||  null,
-            count: null,
-            time: parseInt(formData.time, 10),
-            date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
-            calories: parseInt(formData.calories),
-            notes: formData.notes,
-        };
+        const formattedDate = dayjs(formData.date).format('YYYY-MM-DD');
+        console.log(formattedDate);
 
-        const updatedData = [...existingData, newEntry];
+        try {
+            const response = await fetch('/api/fitness-data', {
+                method: 'Post',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'Badminton',
+                    level: level,
+                    time: time,
+                    calories: calories,
+                    date: formattedDate,
+                    notes: formData.notes,
+                }),
+            });
 
-        setLastSubmission(newEntry);
-        setConfirmationMessage("Badminton data logged successfully!");
-        setMessageType('success');
-
-        setFormData({ 
-            level: '',
-            time: '',
-            calories: '',
-            date: null,
-            notes: '',
-        });
-    };
-
-    const handleUndo = () => {
-        if (!lastSubmission) return;
-    
-        const updatedData = existingData.filter((entry) => entry.id !== lastSubmission.id);
-    
-        setLastSubmission(null);
-        setConfirmationMessage('Reverted last submission.');
+            if (response.ok) {
+                setConfirmationMessage('Badminton data logged successfully!');
+                setMessageType('success');
+                setFormData({ 
+                    level: '',
+                    time: '',
+                    calories: '',
+                    date: null,
+                    notes: '',
+                });
+            } else {
+                setConfirmationMessage('Error logging data. Please try again.');
+                setMessageType('error');
+            }
+        } catch (error) {
+            setConfirmationMessage('Network error. Please try again.');
+            setMessageType('error');
+        }
     };
 
     return (
@@ -161,16 +159,6 @@ export default function BadmintonlForm() {
         <Button type="submit" variant="contained" color="primary">
             Save
         </Button>
-        {lastSubmission && (
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleUndo}
-                sx={{marginTop: '10px'}}
-            >
-                Undo Submission
-            </Button>
-        )}
         {confirmationMessage && (
             <Typography
                 variant="body1" 

@@ -67,9 +67,9 @@ export default function RunningForm() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'Running',
-                    distance: parseFloat(formData.distance),
-                    time: parseInt(formData.time, 10),
-                    calories: parseInt(formData.calories, 10),
+                    distance: distance,
+                    time: time,
+                    calories: calories,
                     date: formattedDate,
                     notes: formData.notes,
                 }),

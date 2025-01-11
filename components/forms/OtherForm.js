@@ -12,7 +12,7 @@ export default function OtherForm() {
         notes: '',
         }
     );
-    const [lastSubmission, setLastSubmission] = useState(null);
+
     const [confirmationMessage, setConfirmationMessage] = useState('');
     const [messageType, setMessageType] = useState('success');
 
@@ -25,7 +25,7 @@ export default function OtherForm() {
         setFormData({ ...formData, date: newDate });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const time = parseInt(formData.time, 10);
@@ -49,50 +49,41 @@ export default function OtherForm() {
             return;
         }
         
-        const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
+        const formattedDate = dayjs(formData.date).format('YYYY-MM-DD');
+        console.log(formattedDate);
 
-        const newEntry = {
-            id: Date.now().toString(),
-            type: 'Other',
-            distance: null,
-            elevation: null,
-            weight: null,
-            tod: '',
-            level: null,
-            count: null,
-            time: parseInt(formData.time, 10),
-            date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
-            calories: parseInt(formData.calories),
-            notes: formData.notes,
-        };
+        try {
+            const response = await fetch('/api/fitness-data', {
+                method: 'Post',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'Other',
+                    time: time,
+                    calories: calories,
+                    date: formattedDate,
+                    notes: formData.notes,
+                }),
+            });
 
-        const updatedData = [...existingData, newEntry];
-        localStorage.setItem('fitnessData', JSON.stringify(updatedData));
-        
-        setLastSubmission(newEntry);
-        setConfirmationMessage("Other data logged successfully!");
-        setMessageType('success');
-
-        setFormData({ 
-            time: '',
-            calories: '',
-            date: null,
-            notes: '',
-        });
+            if (response.ok) {
+                setConfirmationMessage('Other data logged successfully!');
+                setMessageType('success');
+                setFormData({ 
+                    time: '',
+                    calories: '',
+                    date: null,
+                    notes: '',
+                });
+            } else {
+                setConfirmationMessage('Error logging data. Please try again.');
+                setMessageType('error');
+            }
+        } catch (error) {
+            setConfirmationMessage('Network error. Please try again.');
+            setMessageType('error');
+        }
     };
 
-    const handleUndo = () => {
-        if (!lastSubmission) return;
-    
-        const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
-    
-        const updatedData = existingData.filter((entry) => entry.id !== lastSubmission.id);
-        localStorage.setItem('fitnessData', JSON.stringify(updatedData));
-    
-        setLastSubmission(null);
-        setConfirmationMessage('Reverted last submission.');
-    };
-    
     return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
     <Box 
@@ -147,16 +138,6 @@ export default function OtherForm() {
         <Button type="submit" variant="contained" color="primary">
             Save
         </Button>
-        {lastSubmission && (
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleUndo}
-                sx={{marginTop: '10px'}}
-            >
-                Undo Submission
-            </Button>
-        )}
         {confirmationMessage && (
             <Typography 
                 variant="body1" 

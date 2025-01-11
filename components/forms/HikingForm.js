@@ -3,18 +3,19 @@ import { Box, TextField, Button, Typography } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useState } from 'react';
+import dayjs from 'dayjs';
 
 export default function HikingForm() {
     const [formData, setFormData] = useState({
         distance: '',
-        elevation: null,
+        elevation: '',
         time: '',
         calories: '',
         date: null,
         notes: '',
         }
     );
-    const [lastSubmission, setLastSubmission] = useState(null);
+
     const [confirmationMessage, setConfirmationMessage] = useState('');
     const [messageType, setMessageType] = useState('success');
 
@@ -27,7 +28,7 @@ export default function HikingForm() {
         setFormData({ ...formData, date: newDate });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const distance = parseFloat(formData.distance);
@@ -64,51 +65,44 @@ export default function HikingForm() {
             setMessageType('error');
             return;
         }
-        
-        const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
 
-        const newEntry = {
-            id: Date.now().toString(),
-            type: 'Hiking',
-            distance: parseFloat(formData.distance),
-            elevation: parseFloat(formData.elevation),
-            weight: null,
-            tod: '',
-            level: null,
-            count: null,
-            time: parseInt(formData.time, 10),
-            date: formData.date ? formData.date.toISOString() : new Date().toISOString(),
-            calories: parseInt(formData.calories),
-            notes: formData.notes,
-        };
+        const formattedDate = dayjs(formData.date).format('YYYY-MM-DD');
+        console.log(formattedDate);
 
-        const updatedData = [...existingData, newEntry];
-        localStorage.setItem('fitnessData', JSON.stringify(updatedData));
-        
-        setLastSubmission(newEntry);
-        setConfirmationMessage("Hiking data logged successfully!");
-        setMessageType('success');
+        try {
+            const response = await fetch('/api/fitness-data', {
+                method: 'Post',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'Hiking',
+                    distance: distance,
+                    elevation: elevation,
+                    time: time,
+                    calories: calories,
+                    date: formattedDate,
+                    notes: formData.notes,
+                }),
+            });
 
-        setFormData({ 
-            distance: '',
-            elevation: null,
-            time: '',
-            calories: '',
-            date: null,
-            notes: '',
-        });
-    };
-
-    const handleUndo = () => {
-        if (!lastSubmission) return;
-    
-        const existingData = JSON.parse(localStorage.getItem('fitnessData')) || [];
-    
-        const updatedData = existingData.filter((entry) => entry.id !== lastSubmission.id);
-        localStorage.setItem('fitnessData', JSON.stringify(updatedData));
-    
-        setLastSubmission(null);
-        setConfirmationMessage('Reverted last submission.');
+            if (response.ok) {
+                setConfirmationMessage('Hiking data logged successfully!');
+                setMessageType('success');
+                setFormData({ 
+                    distance: '',
+                    elevation: '',
+                    time: '',
+                    calories: '',
+                    date: null,
+                    notes: '',
+                });
+            } else {
+                setConfirmationMessage('Error logging data. Please try again.');
+                setMessageType('error');
+            }
+        } catch (error) {
+            setConfirmationMessage('Network error. Please try again.');
+            setMessageType('error');
+        }
     };
     
     return (
@@ -183,16 +177,6 @@ export default function HikingForm() {
         <Button type="submit" variant="contained" color="primary">
             Save
         </Button>
-        {lastSubmission && (
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleUndo}
-                sx={{marginTop: '10px'}}
-            >
-                Undo Submission
-            </Button>
-        )}
         {confirmationMessage && (
             <Typography 
                 variant="body1" 
