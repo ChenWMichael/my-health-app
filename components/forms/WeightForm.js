@@ -27,6 +27,14 @@ export default function WeightForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const weight = parseFloat(formData.weight);
+    
+        if (!formData.weight.trim() || isNaN(weight) || weight <= 0) {
+            setConfirmationMessage("Please enter a valid positive weight before submitting.");
+            setMessageType('error');
+            return;
+        }
         
         if (!formData.date) {
             setConfirmationMessage("Please select a date before submitting.");
@@ -50,7 +58,7 @@ export default function WeightForm() {
                 body: JSON.stringify({
                     type: 'Weight',
                     weight: weight,
-                    time_of_day: tod,
+                    time_of_day: formData.tod,
                     date: formattedDate,
                     notes: formData.notes,
                 }),
