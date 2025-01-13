@@ -8,35 +8,47 @@ import 'chartjs-adapter-luxon';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, TimeScale, Title, Tooltip, Legend);
 
-const timeframes = ['1D', '7D', '1M', '6M', 'YTD', '1Y', '5Y', '10Y']
+const timeframes = ['1D', '7D', '1M', '6M', 'YTD', '1Y', '5Y', '10Y', 'All']
 
 export default function Dashboard() {
     const [fitnessData, setFitnessData] = useState([]);
     const [visibleGraphs, setVisibleGraphs] = useState({
-        caloriesGraph: true,
-        activityCountGraph: true,
-        weightLineGraph: true,
+        caloriesGraph: { visible: true, filters: { activityType: 'All' } },
+        activityCountGraph: { visible: true, filters: { activityType: 'All' } },
+        weightLineGraph: { visible: true, filters: { timeOfDay: 'All' } },
     });
 
     const [timeframe, setTimeframe] = useState('1Y');
 
     useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await fetch('/api/fitness-data');
-                const data = await response.json();
-                setFitnessData(data);
-            } catch (error) {
-                console.error('Error fetching fitness data:', error);
-            }
-        }
-        fetchData();
+        const interval = setInterval(async () => {
+            const response = await fetch('/api/fitness-data');
+            const data = await response.json();
+            setFitnessData(data);
+        }, 5000);
+    
+        return () => clearInterval(interval);
     }, []);
 
     const toggleGraph = (graphKey) => {
         setVisibleGraphs((prev) => ({
             ...prev,
-            [graphKey]: !prev[graphKey],
+            [graphKey]: {
+                ...prev[graphKey],
+                visible: !prev[graphKey].visible,
+            },
+        }));
+    };
+
+    const updateGraphFilter = (graphKey, filterKey, value) => {
+        setVisibleGraphs((prev) => ({
+            ...prev,
+            [graphKey]: {
+                ...prev[graphKey],
+                filters: {
+                    [filterKey] : value,
+                },
+            },
         }));
     };
 
@@ -68,6 +80,9 @@ export default function Dashboard() {
             case '10Y':
                 startDate = new Date(new Date().setFullYear(now.getFullYear() - 10)); // 10 years ago
                 break;
+            case 'All':
+                startDate = new Date(0);
+                break;
             default:
                 startDate = new Date(0); // Default to the earliest possible date
         }
@@ -75,12 +90,83 @@ export default function Dashboard() {
         return data.filter((entry) => new Date(entry.date) >= startDate);
     }
 
-    console.log('Fitness Data:', fitnessData);
+    const calculateAnnualStats = (data) => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentYearData = data.filter((entry) => {
+            const entryYear = new Date(entry.date).getFullYear();
+            return entryYear === currentYear;
+        });
+        const startOfYear = new Date(currentYear, 0, 1);
+        const daysElapsed = Math.ceil((now - startOfYear) / (1000 * 60 * 60 * 24));
 
+        const totalCalories = currentYearData.reduce((sum, entry) => sum + (entry.calories || 0), 0);
+        const avgCalories = (totalCalories / daysElapsed).toFixed(1);
+
+        const weightEntries = currentYearData.filter((entry) => entry.type === 'Weight');
+        const averageWeight =
+            weightEntries.reduce((sum, entry) => sum + entry.weight, 0) /
+            (weightEntries.length || 1);
+
+        const popularActivity = currentYearData.reduce((acc, entry) => {
+            if (entry.type === 'Weight') return acc;
+            acc[entry.type] = (acc[entry.type] || 0) + 1;
+            return acc;
+        }, {});
+        const mostPopularActivity = Object.entries(popularActivity).reduce((maxEntry, currentEntry) => {
+            return currentEntry[1] > maxEntry[1] ? currentEntry : maxEntry;
+        }, ['', -Infinity]);
+
+        // Most done activity
+        // Total distance ran
+        // Max calories burnt in a single day
+        // Total workouts logged for the year
+        // Weight change since start of the year
+
+        return {
+            currentYear,
+            avgCalories,
+            averageWeight: averageWeight.toFixed(1),
+            mostPopularActivity,
+        };
+    }
+
+    const AnnualStats = ({ data }) => {
+        const { currentYear, avgCalories, averageWeight, mostPopularActivity } = calculateAnnualStats(data);
+        return (
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                <Card>
+                    <CardContent>
+                        <Typography>Average Calories Burned in {currentYear}</Typography>
+                        <Typography variant="h5">{avgCalories}</Typography>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent>
+                        <Typography>Average Weight in {currentYear}</Typography>
+                        <Typography variant="h5">{averageWeight} lbs</Typography>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent>
+                        <Typography>Most Popular Activity in  {currentYear}</Typography>
+                        <Typography variant="h5">{mostPopularActivity[0]}</Typography>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    };
+
+    console.log('Fitness Data:', fitnessData);
     const filteredFitnessData = filterDataByTimeframe(fitnessData, timeframe);
 
     const analyzeCalories = () => {
-        return filteredFitnessData.reduce((acc, entry) => {
+        const { activityType } = visibleGraphs.caloriesGraph.filters;
+        const filteredData =
+            activityType === 'All'
+                ? filteredFitnessData
+                : filteredFitnessData.filter((entry) => entry.type === activityType);
+        return filteredData.reduce((acc, entry) => {
             if (entry.type === 'Weight') return acc;
             acc[entry.type] = (acc[entry.type] || 0) + (entry.calories || 0);
             return acc;
@@ -122,14 +208,40 @@ export default function Dashboard() {
     };
 
     const analyzeWeight = () => {
-        console.log('Filtered Fitness Data:', filteredFitnessData);
-        return filteredFitnessData
+        const timeOfDayFilter = visibleGraphs.weightLineGraph.filters.timeOfDay;
+    
+        const filteredData = filteredFitnessData
             .filter((entry) => entry.type === 'Weight')
-            .sort((a,b) => new Date(a.date) - new Date(b.date));
+            .filter((entry) => timeOfDayFilter === 'All' || entry.time_of_day === timeOfDayFilter.toLowerCase())
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+        return filteredData;
+    };
+
+    const calculateTrendline = (data) => {
+        if (data.length < 2) return []; // No trendline if there's insufficient data
+    
+        // Extract x (date as a number) and y (weight) values
+        const x = data.map((entry) => new Date(entry.date).getTime());
+        const y = data.map((entry) => entry.weight);
+    
+        const n = x.length;
+        const xSum = x.reduce((sum, xi) => sum + xi, 0);
+        const ySum = y.reduce((sum, yi) => sum + yi, 0);
+        const xySum = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+        const xSquaredSum = x.reduce((sum, xi) => sum + xi * xi, 0);
+    
+        // Calculate slope (m) and y-intercept (b)
+        const m = (n * xySum - xSum * ySum) / (n * xSquaredSum - xSum * xSum);
+        const b = (ySum - m * xSum) / n;
+    
+        // Generate trendline points
+        return x.map((xi) => ({ x: xi, y: m * xi + b }));
     };
 
     const weightAnalysis = analyzeWeight();
     console.log('Weight Analysis:', weightAnalysis);
+    const trendline = calculateTrendline(weightAnalysis);
 
     const weightData = {
         labels: weightAnalysis.map((entry) => new Date(entry.date).toLocaleDateString()),
@@ -145,7 +257,15 @@ export default function Dashboard() {
                 borderWidth: 2,
                 fill: false,
                 tension: 0.1,
-            }
+            },
+            {
+                label: 'Trend Line',
+                data: trendline,
+                borderColor: 'rgba(255, 99, 132, 0.8)', // Trendline color
+                borderWidth: 2,
+                pointRadius: 0, // No points on the trendline
+                fill: false,
+            },
         ]
     }
 
@@ -158,7 +278,6 @@ export default function Dashboard() {
             },
             title: {
                 display: true,
-                text: 'Weight Trend',
             },
         },
         scales: {
@@ -195,7 +314,8 @@ export default function Dashboard() {
     };
 
     return (
-        <div>
+        <div style = {{ marginTop: '10px' }} >
+            <AnnualStats data={fitnessData} />
             <FormControl 
                 variant="outlined" 
                 sx={{ marginTop: '10px', marginBottom: '10px', marginLeft: '10px', width: '200px' }}
@@ -214,28 +334,71 @@ export default function Dashboard() {
                     ))}
                 </Select>
             </FormControl>
-            <div>
-                {Object.entries(visibleGraphs).map(([graphKey, visible]) => (
-                    <FormControlLabel sx= {{marginLeft: '10px'}}
-                        key={graphKey}
-                        control={
-                            <Checkbox
-                                checked={visible}
-                                onChange={() => toggleGraph(graphKey)}
-                            />
-                        }
-                        label={
-                            {
-                                caloriesGraph: 'Calories Burned',
-                                activityCountGraph: 'Activity Counts',
-                                weightLineGraph: 'Weight Trend',
-                            }[graphKey]
-                        }
-                    />
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '10px' }}>
+                {Object.entries(visibleGraphs).map(([graphKey, { visible, filters }]) => (
+                    <div key={graphKey}>
+                        <FormControlLabel sx= {{marginLeft: '10px'}}
+                            key={graphKey}
+                            control={
+                                <Checkbox
+                                    checked={visible}
+                                    onChange={() => toggleGraph(graphKey)}
+                                />
+                            }
+                            label={
+                                {
+                                    caloriesGraph: 'Calories Burned by Activity',
+                                    activityCountGraph: 'Count of Activities',
+                                    weightLineGraph: 'Weight',
+                                }[graphKey]
+                            }
+                        />
+                        {visible && graphKey === 'caloriesGraph' && (
+                            <FormControl sx={{ width: '200px' }}>
+                                <InputLabel id="calories-activity-label">Activity Type</InputLabel>
+                                <Select
+                                    labelId="calories-activity-label"
+                                    value={filters.activityType}
+                                    onChange={(e) =>
+                                        updateGraphFilter(graphKey, 'activityType', e.target.value)
+                                    }
+                                    label='Activity Type'
+                                >
+                                    <MenuItem value="All">All</MenuItem>
+                                    <MenuItem value="Badminton">Badminton</MenuItem>
+                                    <MenuItem value="Hiking">Hiking</MenuItem>
+                                    <MenuItem value="Jump Rope">Jump Rope</MenuItem>
+                                    <MenuItem value="Pickleball">Pickleball</MenuItem>
+                                    <MenuItem value="Running">Running</MenuItem>
+                                    <MenuItem value="Other">Other</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+
+                        {visible && graphKey === 'weightLineGraph' && (
+                            <FormControl sx={{ width: '200px' }}>
+                                <InputLabel id="weight-time-label">Time of Day</InputLabel>
+                                <Select
+                                    labelId="weight-time-label"
+                                    value={filters.timeOfDay}
+                                    onChange={(e) =>
+                                        updateGraphFilter(graphKey, 'timeOfDay', e.target.value)
+                                    }
+                                    label='Time of Day'
+                                >
+                                    <MenuItem value="All">All</MenuItem>
+                                    <MenuItem value="Morning">Morning</MenuItem>
+                                    <MenuItem value="Afternoon">Afternoon</MenuItem>
+                                    <MenuItem value="Night">Night</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    </div>
                 ))}
             </div>
 
-            {visibleGraphs.caloriesGraph && (
+            {visibleGraphs.caloriesGraph.visible && (
                 <Card sx={{ }}>
                     <CardContent>
                         <Typography variant="h6">Calories Burned</Typography>
@@ -244,7 +407,7 @@ export default function Dashboard() {
                 </Card>
             )}
 
-            {visibleGraphs.activityCountGraph && (
+            {visibleGraphs.activityCountGraph.visible && (
                 <Card sx={{ }}>
                     <CardContent>
                         <Typography variant="h6">Activity Counts</Typography>
@@ -253,7 +416,7 @@ export default function Dashboard() {
                 </Card>
             )}
 
-            {visibleGraphs.weightLineGraph && (
+            {visibleGraphs.weightLineGraph.visible && (
                 <Card sx={{ }}>
                     <CardContent>
                         <Typography variant="h6">Weight</Typography>
@@ -261,6 +424,7 @@ export default function Dashboard() {
                     </CardContent>
                 </Card>
             )}
+
         </div>
     );
 }
