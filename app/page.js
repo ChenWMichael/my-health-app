@@ -20,7 +20,7 @@ export default function Home() {
           <br />
           Visualizing Progress
           <br />
-          Achieving Goals
+          Seeing If I'm Fat or Not
           
         </Typography>
         <Link href="/dashboard" passHref>

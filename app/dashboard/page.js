@@ -25,7 +25,7 @@ export default function Dashboard() {
             const response = await fetch('/api/fitness-data');
             const data = await response.json();
             setFitnessData(data);
-        }, 5000);
+        }, 10000);
     
         return () => clearInterval(interval);
     }, []);
@@ -108,51 +108,102 @@ export default function Dashboard() {
             weightEntries.reduce((sum, entry) => sum + entry.weight, 0) /
             (weightEntries.length || 1);
 
+        const lowestWeight = Math.min(...weightEntries.map((entry) => entry.weight));
+
+        const sortedWeightEntries = weightEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const firstWeightEntry = sortedWeightEntries.length > 0 ? sortedWeightEntries[0] : null;
+        const lastWeightEntry = sortedWeightEntries.length > 0 ? sortedWeightEntries[sortedWeightEntries.length-1] : null;
+
+        const deltaWeight = lastWeightEntry && firstWeightEntry
+            ? (lastWeightEntry.weight - firstWeightEntry.weight).toFixed(1)
+            : null;
+
         const popularActivity = currentYearData.reduce((acc, entry) => {
             if (entry.type === 'Weight') return acc;
             acc[entry.type] = (acc[entry.type] || 0) + 1;
             return acc;
         }, {});
+
         const mostPopularActivity = Object.entries(popularActivity).reduce((maxEntry, currentEntry) => {
             return currentEntry[1] > maxEntry[1] ? currentEntry : maxEntry;
         }, ['', -Infinity]);
 
-        // Most done activity
-        // Total distance ran
-        // Max calories burnt in a single day
-        // Total workouts logged for the year
-        // Weight change since start of the year
+        const ranMap = currentYearData.filter((entry) => entry.type === 'Running');
+        const totalDistanceRan = ranMap.reduce((sum, entry) => sum + (entry.distance || 0), 0);
 
         return {
             currentYear,
             avgCalories,
             averageWeight: averageWeight.toFixed(1),
+            deltaWeight,
+            lowestWeight: lowestWeight.toFixed(1),
             mostPopularActivity,
+            totalDistanceRan,
         };
     }
 
+    const formatActivityName = (activityName) => {
+        const nameMappings = {
+            JumpRope: 'Jump Rope',
+        };
+        return nameMappings[activityName] || activityName;
+    };
+
     const AnnualStats = ({ data }) => {
-        const { currentYear, avgCalories, averageWeight, mostPopularActivity } = calculateAnnualStats(data);
+        const { 
+            currentYear, 
+            avgCalories, 
+            averageWeight, 
+            deltaWeight,
+            lowestWeight,
+            mostPopularActivity,
+            totalDistanceRan,
+        } = calculateAnnualStats(data);
         return (
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                <Card>
-                    <CardContent>
-                        <Typography>Average Calories Burned in {currentYear}</Typography>
-                        <Typography variant="h5">{avgCalories}</Typography>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent>
-                        <Typography>Average Weight in {currentYear}</Typography>
-                        <Typography variant="h5">{averageWeight} lbs</Typography>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent>
-                        <Typography>Most Popular Activity in  {currentYear}</Typography>
-                        <Typography variant="h5">{mostPopularActivity[0]}</Typography>
-                    </CardContent>
-                </Card>
+            <div style={{ marginTop: '5px' }}>
+            <Typography variant="h5" align="center" gutterBottom>
+                {currentYear} Summary
+            </Typography>
+                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                    <Card sx={{ display: 'flex', alignItems: 'center', height: '65px'}}>
+                        <CardContent sx={{ textAlign: 'center'}}>
+                            <Typography>Average Weight</Typography>
+                            <Typography variant="h5">{averageWeight} lbs</Typography>
+                        </CardContent>
+                    </Card>
+                    <Card sx={{ display: 'flex', alignItems: 'center', height: '65px'}}>
+                        <CardContent>
+                            <Typography variant="h6">∆ Weight</Typography>
+                            <Typography variant="h5">
+                                {deltaWeight ? `${deltaWeight > 0 ? '+' : ''}${deltaWeight} lbs` : 'N/A'}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Card sx={{ display: 'flex', alignItems: 'center', height: '65px'}}>
+                        <CardContent>
+                            <Typography variant="h6">Lowest Weight</Typography>
+                            <Typography variant="h5">{lowestWeight} lbs</Typography>
+                        </CardContent>
+                    </Card>
+                    <Card sx={{ display: 'flex', alignItems: 'center', height: '65px'}}>
+                        <CardContent sx={{ textAlign: 'center'}}>
+                            <Typography>Most Popular Activity</Typography>
+                            <Typography variant="h5">{formatActivityName(mostPopularActivity[0])}</Typography>
+                        </CardContent>
+                    </Card>
+                    <Card sx={{ display: 'flex', alignItems: 'center', height: '65px'}}>
+                        <CardContent sx={{ textAlign: 'center'}}>
+                            <Typography>Average Calories Burned / Day</Typography>
+                            <Typography variant="h5">{avgCalories}</Typography>
+                        </CardContent>
+                    </Card>
+                    <Card sx={{ display: 'flex', alignItems: 'center', height: '65px'}}>
+                        <CardContent sx={{ textAlign: 'center'}}>
+                            <Typography>Total Distance Ran</Typography>
+                            <Typography variant="h5">{totalDistanceRan}</Typography>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         );
     };

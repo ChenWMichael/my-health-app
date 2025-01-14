@@ -2,8 +2,8 @@ import "../styles/globals.css";
 import Navbar from "../components/Navbar"
 
 export const metadata = {
-  title: 'My Health App',
-  description: 'Track your health and fitness data easily with data visualizations and trends.',
+  title: 'Check How Fat Michael Is',
+  description: 'Enjoy seeing whether Michael is getting fatter or not',
 };
 
 export default function RootLayout({ children }) {
