@@ -291,7 +291,7 @@ export default function Dashboard() {
     };
 
     const weightAnalysis = analyzeWeight();
-    console.log('Weight Analysis:', weightAnalysis);
+    // console.log('Weight Analysis:', weightAnalysis);
     const trendline = calculateTrendline(weightAnalysis);
 
     const weightData = {
