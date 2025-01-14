@@ -34,7 +34,7 @@ export default function Home() {
           <br />
           Visualizing Progress
           <br />
-          Check If I'm Fat Or Not
+          Check If I&apos;m Fat Or Not
           
         </Typography>
         <Link href="/dashboard" passHref>
