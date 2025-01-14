@@ -406,7 +406,7 @@ export default function Dashboard() {
                             }
                         />
                         {visible && graphKey === 'caloriesGraph' && (
-                            <FormControl sx={{ width: '200px' }}>
+                            <FormControl sx={{ width: '200px', marginLeft: '10px' }}>
                                 <InputLabel id="calories-activity-label">Activity Type</InputLabel>
                                 <Select
                                     labelId="calories-activity-label"
@@ -428,7 +428,7 @@ export default function Dashboard() {
                         )}
 
                         {visible && graphKey === 'weightLineGraph' && (
-                            <FormControl sx={{ width: '200px' }}>
+                            <FormControl sx={{ width: '200px', marginLeft: '10px' }}>
                                 <InputLabel id="weight-time-label">Time of Day</InputLabel>
                                 <Select
                                     labelId="weight-time-label"

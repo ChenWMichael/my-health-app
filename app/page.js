@@ -1,3 +1,4 @@
+'use client';
 import Link from "next/link";
 import { Typography, Button, Box } from "@mui/material";
 
@@ -15,12 +16,25 @@ export default function Home() {
           gap: '16px',
         }}
       >
-        <Typography variant="h1" gutterBottom>
+        <Typography 
+        variant="h1" 
+        gutterBottom
+        sx={{
+          wordWrap: 'break-word',
+          maxWidth: '90%', // Restricts text width
+          fontSize: {
+            xs: '2rem', // Small screens
+            sm: '3rem', // Medium screens
+            md: '4rem', // Larger screens
+            lg: '5rem', // Extra-large screens
+          },
+        }}
+        >
           Tracking Health
           <br />
           Visualizing Progress
           <br />
-          Seeing If I'm Fat or Not
+          Check If I'm Fat Or Not
           
         </Typography>
         <Link href="/dashboard" passHref>

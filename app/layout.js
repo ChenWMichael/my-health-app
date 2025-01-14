@@ -2,7 +2,7 @@ import "../styles/globals.css";
 import Navbar from "../components/Navbar"
 
 export const metadata = {
-  title: 'Check How Fat Michael Is',
+  title: 'Check If Michael Is Fat',
   description: 'Enjoy seeing whether Michael is getting fatter or not',
 };
 

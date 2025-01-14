@@ -9,7 +9,7 @@ export default function Navbar() {
             component="div"
             sx={{ flexGrow: 1, color: 'inherit' }}
           >
-            Check How Fat Michael Is
+            Check If Michael Is Fat
           </Typography>
           <Link href="/" passHref>
             <Button sx={{ color: 'inherit' }}>Home</Button>
