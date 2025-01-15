@@ -25,7 +25,7 @@ export default function Dashboard() {
             const response = await fetch('/api/fitness-data');
             const data = await response.json();
             setFitnessData(data);
-        }, 1000);
+        }, 2000);
     
         return () => clearInterval(interval);
     }, []);
@@ -53,6 +53,9 @@ export default function Dashboard() {
     };
 
     const filterDataByTimeframe = (data, timeframe) => {
+        if (!Array.isArray(data)) {
+            return [];
+        }
         const now = new Date();
         let startDate;
         switch (timeframe) {
@@ -93,10 +96,12 @@ export default function Dashboard() {
     const calculateAnnualStats = (data) => {
         const now = new Date();
         const currentYear = now.getFullYear();
-        const currentYearData = data.filter((entry) => {
-            const entryYear = new Date(entry.date).getFullYear();
-            return entryYear === currentYear;
-        });
+        const currentYearData = Array.isArray(data)
+            ? data.filter((entry) => {
+                const entryYear = new Date(entry.date).getFullYear();
+                return entryYear === currentYear;
+            })
+            : [];
         const startOfYear = new Date(currentYear, 0, 1);
         const daysElapsed = Math.ceil((now - startOfYear) / (1000 * 60 * 60 * 24));
 
@@ -208,7 +213,7 @@ export default function Dashboard() {
         );
     };
 
-    console.log('Fitness Data:', fitnessData);
+    // console.log('Fitness Data:', fitnessData);
     const filteredFitnessData = filterDataByTimeframe(fitnessData, timeframe);
 
     const analyzeCalories = () => {
