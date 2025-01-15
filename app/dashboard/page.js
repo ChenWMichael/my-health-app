@@ -275,24 +275,27 @@ export default function Dashboard() {
     };
 
     const calculateTrendline = (data) => {
-        if (data.length < 2) return []; // No trendline if there's insufficient data
+        if (data.length < 2) return [];
     
-        // Extract x (date as a number) and y (weight) values
         const x = data.map((entry) => new Date(entry.date).getTime());
         const y = data.map((entry) => entry.weight);
     
-        const n = x.length;
-        const xSum = x.reduce((sum, xi) => sum + xi, 0);
-        const ySum = y.reduce((sum, yi) => sum + yi, 0);
-        const xySum = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
-        const xSquaredSum = x.reduce((sum, xi) => sum + xi * xi, 0);
+        const xMin = Math.min(...x);
+        const normalizedX = x.map((xi) => xi - xMin);
     
-        // Calculate slope (m) and y-intercept (b)
+        const n = normalizedX.length;
+        const xSum = normalizedX.reduce((sum, xi) => sum + xi, 0);
+        const ySum = y.reduce((sum, yi) => sum + yi, 0);
+        const xySum = normalizedX.reduce((sum, xi, i) => sum + xi * y[i], 0);
+        const xSquaredSum = normalizedX.reduce((sum, xi) => sum + xi * xi, 0);
+    
         const m = (n * xySum - xSum * ySum) / (n * xSquaredSum - xSum * xSum);
         const b = (ySum - m * xSum) / n;
     
-        // Generate trendline points
-        return x.map((xi) => ({ x: xi, y: m * xi + b }));
+        return normalizedX.map((xi, i) => ({
+            x: new Date(xi + xMin).toISOString().split('T')[0], // Match `weightData` format
+            y: m * xi + b,
+        }));
     };
 
     const weightAnalysis = analyzeWeight();
