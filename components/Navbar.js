@@ -17,6 +17,13 @@ export default function Navbar() {
           <Link href="/dashboard" passHref>
             <Button sx={{ color: 'inherit' }}>Dashboard</Button>
           </Link>
+          <Button
+                    color="inherit"
+                    href="/api/download-db"
+                    download
+                >
+                    Download Database
+                </Button>
         </Toolbar>
       </AppBar>
     );
