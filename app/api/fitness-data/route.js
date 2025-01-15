@@ -2,6 +2,7 @@ import { connectToDatabase } from "@/db";
 import { NextResponse } from "next/server";
 
 const API_KEY = process.env.API_KEY;
+const CSRF_TOKEN = process.env.CSRF_TOKEN;
 const ALLOWED_ORIGINS = ["https://checkifmichaelisfat.org", "https://www.checkifmichaelisfat.org", "http://localhost:3000"];
 
 function isOriginAllowed(origin) {
@@ -26,15 +27,14 @@ export async function middleware(req) {
     }
 
     const csrfToken = req.headers.get("x-csrf-token");
-    const expectedCsrfToken = process.env.CSRF_TOKEN;
-    if (csrfToken !== expectedCsrfToken) {
+    if (csrfToken !== CSRF_TOKEN) {
       return new Response(JSON.stringify({ error: "CSRF Error: Invalid token" }), {
         status: 403,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    return NextResponse.next();
+    return null;
   }
 
 export async function POST(req) {
@@ -91,10 +91,11 @@ export async function POST(req) {
 }
 
 export async function GET(req) {
-    const middlewareResponse = await middleware(req);
-    if (middlewareResponse) return middlewareResponse;
+    // const middlewareResponse = await middleware(req);
+    // if (middlewareResponse) return middlewareResponse;
 
     const db = await connectToDatabase();
     const rows = await db.all(`SELECT * FROM fitness_data`);
+    // console.log("Data retrieved from the database:", rows);
     return new Response(JSON.stringify(rows), {status: 200});
 }

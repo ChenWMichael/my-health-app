@@ -64,7 +64,11 @@ export default function RunningForm() {
         try {
             const response = await fetch('/api/fitness-data', {
                 method: 'Post',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-api-key': process.env.NEXT_PUBLIC_API_KEY,
+                    'x-csrf-token': process.env.NEXT_PUBLIC_CSRF_TOKEN,
+                 },
                 body: JSON.stringify({
                     type: 'Running',
                     distance: distance,
