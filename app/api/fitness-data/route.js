@@ -1,6 +1,20 @@
 import { connectToDatabase } from "@/db";
 
+const API_KEY = process.env.API_KEY;
+
+export async function middleware(req) {
+    const apiKey = req.headers.get("x-api-key");
+    if (apiKey !== API_KEY) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return NextResponse.next();
+  }
+
 export async function POST(req) {
+    await middleware(req);
     const db = await connectToDatabase();
     const body = await req.json();
     const { 
@@ -51,6 +65,7 @@ export async function POST(req) {
 }
 
 export async function GET(req) {
+    await middleware(req);
     const db = await connectToDatabase();
     const rows = await db.all(`SELECT * FROM fitness_data`);
     return new Response(JSON.stringify(rows), {status: 200});
