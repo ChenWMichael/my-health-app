@@ -82,7 +82,7 @@ export async function POST(req) {
         console.error("Error inserting data:", error);
         return new Response(JSON.stringify({ error: "Failed to insert data" }), { status: 500 });
     }
-    return new Response(JSON.stringify({ id: data[0].id }), { status: 201 });
+    return new Response(JSON.stringify({ data }), { status: 201 });
 }
 
 export async function GET(req) {
