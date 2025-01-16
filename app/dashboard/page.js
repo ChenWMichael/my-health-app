@@ -25,7 +25,7 @@ export default function Dashboard() {
             const response = await fetch('/api/fitness-data');
             const data = await response.json();
             setFitnessData(data);
-        }, 2000);
+        }, 200);
     
         return () => clearInterval(interval);
     }, []);
