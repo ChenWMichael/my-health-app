@@ -46,8 +46,8 @@ export async function middleware(req) {
   }
 
 export async function POST(req) {
-    // const middlewareResponse = await middleware(req);
-    // if (middlewareResponse) return middlewareResponse;
+    const middlewareResponse = await middleware(req);
+    if (middlewareResponse) return middlewareResponse;
 
     const body = await req.json();
     const { 
